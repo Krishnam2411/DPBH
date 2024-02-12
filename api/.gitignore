@@ -1,0 +1,32 @@
+# Build artifacts
+.env*  # Environment variables
+__pycache__/  # Bytecode and optimized files
+*/__pycache__/
+dist/  # Distribution files
+
+# Testing artifacts
+.pytest_cache/  # Pytest cache
+tests/coverage/  # Test coverage reports
+allure/  # Allure reports (if used)
+
+# Documentation artifacts
+docs/_build/  # Sphinx documentation build files
+
+# Poetry specific
+.venv/  # Virtual environment created by Poetry (if not using Poetry's virtual environment)
+poetry.lock  # Lock file for dependencies, handled by Poetry
+
+# Unnecessary files
+Thumbs.db
+.DS_Store
+
+# IDE specific files (specific examples)
+.vscode/  # Visual Studio Code settings
+.idea/  # JetBrains IDE settings
+
+# Local development and debugging tools
+ipdb.history  # IPython debugger history
+pdb.history  # Python debugger history
+
+# Pretrainded models
+core/models
