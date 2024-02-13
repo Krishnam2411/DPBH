@@ -1,0 +1,130 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  padding: 20px;
+  width: 300px;
+  color: #fff;
+  background-color: #242424;
+}
+
+h1 {
+  font-size: 2em;
+  line-height: 1.1;
+}
+
+p {
+  font-size: 1.2em;
+  margin: 0.4em;
+}
+
+input[type="checkbox"] {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+}
+
+label {
+  cursor: pointer;
+  text-indent: -9999px;
+  margin: 1rem;
+  width: 50px;
+  height: 25px;
+  background: rgb(82, 82, 82);
+  display: block;
+  border-radius: 25px;
+  position: relative;
+}
+
+label:after {
+  content: "";
+  position: absolute;
+  top: 1.25px;
+  left: 1.25px;
+  width: 22.5px;
+  height: 22.5px;
+  background: #fff;
+  border-radius: 22.5px;
+  transition: 0.3s;
+}
+
+input:checked + label {
+  background: #f8cf00;
+}
+
+input:checked + label:after {
+  left: calc(100% - 1.25px);
+  transform: translateX(-100%);
+}
+
+label:active:after {
+  width: 32.5px;
+}
+
+#result {
+  font-size: 1.6em;
+  font-weight: 550;
+  color: #f8cf00;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+button {
+  border-radius: 10px;
+  border: #fff 1px solid;
+  padding: 0.6em 1.2em;
+  font-size: 1.4em;
+  font-family: inherit;
+  color: #ffffff;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+button:hover {
+  border-color: #e30000;
+  color: #ffffff;
+  background-color: #e30000;
+}
+
+#stats ul {
+  margin: 20px 0px;
+  list-style: none;
+  font-size: 1.2em;
+}
+
+#stats li {
+  float: left;
+  padding: 10px;
+  border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
+}
+
+#stats li:nth-child(2n) {
+  background-color: #404040;
+  border-radius: 10px;
+  margin-left: 1em;
+  margin-bottom: 0.4em;
+}
+
+#stats li:nth-child(2n + 1) {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border: 2px solid #f8cf00;
+  font-weight: 800;
+  display: grid;
+  place-content: center;
+  margin-bottom: 0.4em;
+  height: 2.5em;
+  width: 2.5em;
+  border-radius: 50%;
+  clear: both;
+}

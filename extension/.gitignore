@@ -1,0 +1,23 @@
+# Ignore files generated during development
+node_modules/
+dist/
+*.log
+
+# Ignore user-specific files
+.idea/
+.vscode/
+*.pyc
+
+# Temporary files
+*.tmp
+*.temp
+
+# Ignore Chrome extension build artifacts
+*.crx
+*.pem
+
+# Ignore local configuration files
+*.env
+
+# Ignore macOS system files
+.DS_Store
