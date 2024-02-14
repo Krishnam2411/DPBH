@@ -5,7 +5,7 @@ var Result = [],
 const commonPatterns = [
   {
     pattern: "Get 63% off NordVPN + 3 months free for a friend",
-    response: "This may be a dark pattern",
+    response: "False Urgency",
   },
   {
     pattern: "Get 67% off NordVPN + 3 months free for a friend",
@@ -60,15 +60,19 @@ const HighlightPatterns = (result) => {
   Count = 0;
   Total = 0;
   Result = [];
+  const freqMap = {};
   const allElements = document.body.querySelectorAll("*");
   console.log(result, typeof result);
   for (const darkPattern of result) {
     for (const element of allElements) {
+      Total++;
       if (
         element.innerText?.replace(/\n/g, "").trim().toLowerCase() ===
         darkPattern.pattern.toLowerCase()
       ) {
         if (darkPattern.response !== "Not Dark Pattern") {
+          freqMap[darkPattern.response] = (freqMap[darkPattern.response] || 0) + 1;
+          Count++;
           element.classList.add("__dark_pattern");
           const dialogue = document.createElement("span");
           dialogue.classList.add("__message");
@@ -79,7 +83,14 @@ const HighlightPatterns = (result) => {
       }
     }
   }
-  Result = FindFrequency(result);
+  Result = Object.entries(freqMap).map(([response, count]) => ({
+    response,
+    count,
+  }));
+  const TrustScore = document.querySelectorAll(".__trust_score");
+  for (const element of TrustScore) {
+    element.remove();
+  }
   showScore();
   chrome.storage.local.set({ Status: { Count: Count, Result: Result } }, () => {
     console.log("status submitted", { Count, Result });
@@ -118,34 +129,10 @@ const FilterData = (text) => {
   });
 };
 
-const FindFrequency = (result) => {
-  const freqMap = {};
-  result.forEach((item) => {
-    const response = item.response;
-    Total++;
-    if (response !== "Not Dark Pattern") {
-      freqMap[response] = (freqMap[response] || 0) + 1;
-      Count++;
-    }
-  });
-  const freqArray = Object.entries(freqMap).map(([response, count]) => ({
-    response,
-    count,
-  }));
-  return freqArray;
-};
-
-// Detect executes all process from scraping data to highlighting dark patterns
 const Detect = () => {
   const patterns = ScrapData();
   DetectPatterns(patterns, commonPatterns);
 };
-
-chrome.storage.local.get(["switchState"], (res) => {
-  if (Boolean(res.switchState)) {
-    Detect();
-  }
-});
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === "report") {
