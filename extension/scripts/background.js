@@ -41,7 +41,6 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs && tabs[0]) {
           const activeTab = tabs[0];
-          chrome.tabs.reload(activeTab.id);
           console.log("Active tab ID:", activeTab.id);
           chrome.tabs.sendMessage(
             activeTab.id,
