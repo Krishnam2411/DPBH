@@ -32,6 +32,9 @@ def delete_cache(db: _orm.Session, url:str):
     db.query(_models.Cache).filter(_models.Cache.url==url).delete()
     db.commit()
 
+def delete_caches(db: _orm.Session):
+    db.query(_models.Cache).delete()
+    db.commit()
 
 def update_cache(db: _orm.Session, url: str, cache: _schemas.CreateCache):
     db_cache = get_cache(db=db, url=url)
