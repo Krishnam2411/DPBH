@@ -1,7 +1,3 @@
-var Result = [],
-  Count = 0,
-  Total = 0;
-
 const commonPatterns = [
   {
     pattern: "Get 63% off NordVPN + 3 months free for a friend",
@@ -12,6 +8,11 @@ const commonPatterns = [
     response: "False Urgency",
   },
 ];
+
+const Regex = {
+  timer: /^(\d{2}:){2}\d{2}(:\d{2}(:\d{2})?)?$/,
+  timer2: /^(\d{1,2}h)?(\d{1,2}m)?\d{1,2}s$/,
+};
 
 async function initPatternHighlighter() {
   const activationState = await chrome.runtime.sendMessage({
@@ -137,6 +138,29 @@ function highlightPatterns(result) {
         }
         break;
       }
+    }
+  }
+  for (const element of allElements) {
+    if (
+      element.innerText
+        ?.replace(/[\n\s]/g, "")
+        .trim()
+        .toLowerCase()
+        .match(Regex.timer) ||
+      element.innerText
+        ?.replace(/[\n\s]/g, "")
+        .trim()
+        .toLowerCase()
+        .match(Regex.timer2)
+    ) {
+      freqMap["False Urgency"] = (freqMap["False Urgency"] || 0) + 1;
+      results.Count++;
+      element.classList.add("__dark_pattern");
+      const dialogue = document.createElement("span");
+      dialogue.classList.add("__message");
+      dialogue.innerText = "False Urgency";
+      element.appendChild(dialogue);
+      break;
     }
   }
   results.Stats = Object.entries(freqMap).map(([response, count]) => ({
