@@ -44,9 +44,18 @@ async function initPatternHighlighter() {
 
 initPatternHighlighter();
 
-const showScore = (count) => {
+function calcScore(stats) {
+  let score = 0;
+  const weights = [2.7, 2.1, 1.8, 1.4, 1.2, 1.0, 0.8, 1.0];
+  for (let i = 0; i < stats.length; ++i) {
+    score += stats[i].count * weights[i];
+  }
+  return Math.max(100 - 7 * score, 0);
+}
+
+const showScore = (stats) => {
   let bgColor = "",
-    score = Math.max(100 - count * 7, 0);
+    score = calcScore(stats);
   if (score < 50) bgColor = "rgba(255, 0, 0, 0.75)";
   else if (score >= 75) bgColor = "rgba(0, 215, 0, 0.75)";
   else bgColor = "rgba(255, 191, 0, 0.75)";
@@ -167,7 +176,7 @@ function highlightPatterns(result) {
     response,
     count,
   }));
-  showScore(results.Count);
+  showScore(results.Stats);
   sendResults(results);
   console.log(results);
 }
