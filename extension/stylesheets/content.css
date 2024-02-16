@@ -26,10 +26,11 @@
 .__dark_pattern {
   padding: 4px;
   position: relative;
-  background-color: #f8cf008c !important;
+  background-color: #f8cf008c;
   border: 2px solid #000000 !important;
   z-index: 99999999 !important;
   overflow: visible !important;
+  animation: colorChange 1s infinite !important;
 }
 .__message {
   display: flex;
@@ -42,23 +43,24 @@
   height: 40px;
   min-width: max-content;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif !important;
   font-size: 34px;
   font-weight: 500;
   font-style: normal;
   padding: 0.5rem;
   border-radius: 5px;
   border: 1px solid #000000;
-  background-color: #f8cf00c9;
-  visibility: hidden;
-  opacity: 0;
-  transition: visibilty 0.3s, opacity 0.3s;
+  background-color: #f8cf00bc;
+  /* animation: colorChange 3s infinite !important; */
+  /* visibility: hidden;
+  opacity: 0; */
+  /* transition: visibilty 0.3s, opacity 0.3s; */
   z-index: 10000 !important;
 }
-.__dark_pattern:hover .__message {
+/* .__dark_pattern:hover .__message {
   visibility: visible;
   opacity: 1;
-}
+} */
 
 .__popup {
   position: fixed;
@@ -69,4 +71,16 @@
   padding: 20px;
   border: 1px solid #ccc;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes colorChange {
+  0% {
+    background-color: #fd3232d7;
+  }
+  50% {
+    background-color: #f8cf008c;
+  }
+  100% {
+    background-color: #fd3232d7;
+  }
 }
