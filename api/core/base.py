@@ -31,7 +31,7 @@ bert_model = (helper.BertForClassification
               .from_pretrained(model_name,
                                config=bert_config)
               .to(device))
-state_dict = torch.load('/Users/kris/Desktop/DarkBuster/backend/model/new_bert_model1.pth', map_location = device)
+state_dict = torch.load('C:\\Users\\adhik\\OneDrive\\Desktop\\DPBH\\final\\DPBH\\api\\core\\models\\new_bert_model1.pth', map_location = device)
 new_state_dcit = {k.replace('module.', '') : v for k,v in state_dict.items()}
 bert_model.load_state_dict(new_state_dcit)
 # Assuming you have initialized bert_model and tokenizer already

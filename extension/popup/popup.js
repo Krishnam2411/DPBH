@@ -7,7 +7,7 @@ function displayResult() {
   chrome.storage.local.get(["Status"], (res) => {
     console.log(res.Status);
     document.querySelector("ul")?.remove();
-    if (Number(res.Status.Count) > 0) {
+    if (Number(res.Status?.Count || "0") > 0 ) {
       result.innerText = `${res.Status.Count} dark patterns found.`;
       const ul = document.createElement("ul");
       res.Status.Result?.forEach((item) => {
