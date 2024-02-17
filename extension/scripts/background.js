@@ -2,6 +2,13 @@ const storage = chrome.storage.session
   ? chrome.storage.session
   : chrome.storage.local;
 
+const download = (dataurl, filename) => {
+  const link = document.createElement("a");
+  link.href = dataurl;
+  link.download = filename;
+  link.click();
+};
+
 async function getActivation(tabId) {
   return Object.values(await storage.get(`_id_${tabId}`))[0];
 }
@@ -67,6 +74,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
     getActivationOrSetDefault(tabId).then((activation) => {
       sendResponse({ isEnabled: activation });
+    });
+  } else if (message.action === "takeScreenshot") {
+    console.log("Starting ss");
+    chrome.tabs.captureVisibleTab(async (dataUrl) => {
+      await chrome.scripting.executeScript({
+        func: download,
+        target: { tabId: sender.tab.id },
+        args: [dataUrl, "report.png"],
+      });
     });
   } else {
     sendResponse({ success: false });
