@@ -37,7 +37,7 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: -45px;
+  bottom: -45px;
   right: 0;
   color: #000000;
   height: 40px;
@@ -52,15 +52,15 @@
   border: 1px solid #000000;
   background-color: #f8cf00bc;
   /* animation: colorChange 3s infinite !important; */
-  /* visibility: hidden;
-  opacity: 0; */
-  /* transition: visibilty 0.3s, opacity 0.3s; */
-  z-index: 10000 !important;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibilty 0.3s, opacity 0.3s;
+  z-index: 100000000 !important;
 }
-/* .__dark_pattern:hover .__message {
+.__dark_pattern:hover .__message {
   visibility: visible;
   opacity: 1;
-} */
+}
 
 .__popup {
   position: fixed;
