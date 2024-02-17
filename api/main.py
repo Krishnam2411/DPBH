@@ -1,5 +1,6 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from utils.crawler import crawl
@@ -9,6 +10,9 @@ import fastapi as _fastapi
 import database.services as _services
 import database.schemas as _schemas
 import sqlalchemy.orm as _orm
+import uuid
+import os
+from random import randint
 
 # Ignores warning
 warnings.filterwarnings('ignore')
@@ -90,6 +94,27 @@ def update_post(
     db: _orm.Session = _fastapi.Depends(_services.get_db),
 ):
     return _services.update_cache(db=db, cache=cache, url=url)
+
+# Screenshot endpoints
+
+IMAGEDIR = "screenshots/"
+
+@app.post("/upload/")
+async def upload_ss(file: UploadFile = File(...)):
+    file.filename = f"{uuid.uuid4()}.jpg"
+    contents = await file.read()
+    #save the file
+    with open(f"{IMAGEDIR}{file.filename}", "wb") as f:
+        f.write(contents)
+    return {"filename": file.filename}
+ 
+ 
+@app.get("/show/")
+async def read_all_files():
+    # get random file from the image directory
+    files = os.listdir(IMAGEDIR)
+    responses = [(f"{IMAGEDIR}{file}") for file in files]
+    return responses
 
 if __name__ == '__main__':
     uvicorn.run(app, host='127.0.0.1', port=8000)

@@ -34,6 +34,7 @@ async function initPatternHighlighter() {
         sendResponse({ started: true });
       } else if (message.action === "report") {
         window.alert("Report sent.");
+        chrome.runtime.sendMessage({ action: "saveScreenshot" });
         sendResponse({ success: true });
       } else if (message.action === "takeScreenshot") {
         chrome.runtime.sendMessage({ action: "takeScreenshot" });

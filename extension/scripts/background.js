@@ -84,6 +84,29 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         args: [dataUrl, "report.png"],
       });
     });
+  } else if (message.action === "saveScreenshot") {
+    console.log("Saving ss");
+    chrome.tabs.captureVisibleTab(async (dataUrl) => {
+      // Convert the base64 data URL to a Blob
+      const blobData = await fetch(dataUrl).then((response) => response.blob());
+
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append("file", blobData, "screenshot.png");
+
+      // Send the HTTP request to the FastAPI server's /upload/ endpoint
+      fetch("http://127.0.0.1:8000/upload/", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Screenshot saved:", data);
+        })
+        .catch((error) => {
+          console.error("Error saving screenshot:", error);
+        });
+    });
   } else {
     sendResponse({ success: false });
   }
