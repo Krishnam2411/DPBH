@@ -1,3 +1,6 @@
+const API_HOST='127.0.0.1'
+const API_PORT=8000
+
 const storage = chrome.storage.session
   ? chrome.storage.session
   : chrome.storage.local;
@@ -95,7 +98,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       formData.append("file", blobData, "screenshot.png");
 
       // Send the HTTP request to the FastAPI server's /upload/ endpoint
-      fetch("http://127.0.0.1:8000/upload/", {
+      fetch(`http://${API_HOST}:${API_PORT}/upload/`, {
         method: "POST",
         body: formData,
       })
