@@ -48,7 +48,7 @@ async def crawling():
 
 #database endpoints
 @app.post("/createcache/",response_model=_schemas.Cache)
-def create_cache(cache:_schemas.CreateCache,db: _orm.Session = _fastapi.Depends(_services.get_db)):
+async def create_cache(cache:_schemas.CreateCache,db: _orm.Session = _fastapi.Depends(_services.get_db)):
     db_cache = _services.get_cache(db=db, url=cache.url)
     if db_cache:
         raise _fastapi.HTTPException(
@@ -59,7 +59,7 @@ def create_cache(cache:_schemas.CreateCache,db: _orm.Session = _fastapi.Depends(
 
 
 @app.get("/caches/", response_model=List[_schemas.Cache])
-def read_caches(
+async def read_caches(
     skip: int = 0,
     limit: int = 10,
     db: _orm.Session = _fastapi.Depends(_services.get_db),
@@ -69,7 +69,7 @@ def read_caches(
 
 
 @app.get("/cache/{url}", response_model=_schemas.Cache)
-def read_cache(url: str, db: _orm.Session = _fastapi.Depends(_services.get_db)):
+async def read_cache(url: str, db: _orm.Session = _fastapi.Depends(_services.get_db)):
     db_cache = _services.get_cache(db=db, url=url)
     if db_cache is None:
         raise _fastapi.HTTPException(
@@ -78,13 +78,17 @@ def read_cache(url: str, db: _orm.Session = _fastapi.Depends(_services.get_db)):
     return db_cache
 
 @app.delete("/cache/{url}")
-def delete_cache(url:str, db: _orm.Session = _fastapi.Depends(_services.get_db)):
+async def delete_cache(url:str, db: _orm.Session = _fastapi.Depends(_services.get_db)):
     _services.delete_cache(db=db, url=url)
     return {"message": f"Cache deleted successfully for URL: {url}"}
 
+@app.delete("/caches/")
+async def delete_caches(db: _orm.Session = _fastapi.Depends(_services.get_db)):
+    _services.delete_caches(db=db)
+    return {"message": f"Deleted all cached data"}
 
 @app.put("/cache/{url}", response_model=_schemas.Cache)
-def update_post(
+async def update_post(
     url:str,
     cache: _schemas.CreateCache,
     db: _orm.Session = _fastapi.Depends(_services.get_db),

@@ -53,9 +53,8 @@ function calcScore(stats) {
   return Math.max(100 - 7 * score, 0);
 }
 
-const showScore = (stats) => {
-  let bgColor = "",
-    score = calcScore(stats);
+const showScore = (score) => {
+  let bgColor = "";
   if (score < 50) bgColor = "rgba(255, 0, 0, 0.75)";
   else if (score >= 75) bgColor = "rgba(0, 215, 0, 0.75)";
   else bgColor = "rgba(255, 191, 0, 0.75)";
@@ -91,23 +90,89 @@ function remove() {
   }
 }
 
+function extractDomainFromUrl(url) {
+  const match = url.match(
+    /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/
+  );
+  return match ? match[1] : null;
+}
+
 async function detect() {
   const text = scrapText();
-  fetch("http://127.0.0.1:8000/predict", {
-    method: "POST",
-    body: JSON.stringify(text),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-      "Access-Control-Allow-Credentials": "true",
-    },
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      highlightPatterns([...commonPatterns, ...json.response]);
-    })
-    .catch((error) => {
-      console.log("Error :", error);
+  const url = extractDomainFromUrl(document.URL);
+
+  try {
+    const cacheResponse = await fetch(`http://127.0.0.1:8000/cache/${url}`, {
+      method: "GET",
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "Access-Control-Allow-Credentials": "true",
+      },
     });
+    const cacheJson = await cacheResponse.json();
+    if (!cacheJson.detail) {
+      const parsedContent = JSON.parse(cacheJson.content).response;
+      console.log("Cache found:", JSON.stringify(cacheJson));
+      // console.log("TrustScore found:", cacheJson.trust_score);
+      // console.log("Detected patterns", parsedContent);
+
+      if (Array.isArray(parsedContent)) {
+        highlightPatterns([...commonPatterns, ...parsedContent]);
+      } else {
+        console.error("Invalid content format:", parsedContent);
+      }
+    } else {
+      console.log("Cache not found, making a prediction...");
+      let [content, tscore] = await makePrediction(text);
+      console.log(content);
+      console.log(tscore);
+      console.log("Saving...");
+      await savePrediction(url, content, tscore);
+    }
+  } catch (error) {
+    console.error("Error checking cache:", error);
+  }
+}
+
+async function makePrediction(text) {
+  try {
+    const predictResponse = await fetch("http://127.0.0.1:8000/predict", {
+      method: "POST",
+      body: JSON.stringify(text),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "Access-Control-Allow-Credentials": "true",
+      },
+    });
+
+    const predictJson = await predictResponse.json();
+    let score = highlightPatterns([...commonPatterns, ...predictJson.response]);
+    return [predictJson, score];
+  } catch (error) {
+    console.error("Error making prediction:", error);
+  }
+}
+
+async function savePrediction(url, content, tscore) {
+  try {
+    const saveResponse = await fetch(`http://127.0.0.1:8000/createcache/`, {
+      method: "POST",
+      body: JSON.stringify({
+        url: url,
+        content: JSON.stringify(content),
+        trust_score: Number(tscore.toPrecision(2)),
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        "Access-Control-Allow-Credentials": "true",
+      },
+    });
+
+    const saveJson = await saveResponse.json();
+    console.log("Saved successfully:" + JSON.stringify(saveJson));
+  } catch (error) {
+    console.error("Error saving:", error);
+  }
 }
 
 function scrapText() {
@@ -176,9 +241,11 @@ function highlightPatterns(result) {
     response,
     count,
   }));
-  showScore(results.Stats);
+  let score = calcScore(results.Stats);
+  showScore(score);
   sendResults(results);
   console.log(results);
+  return score;
 }
 
 function sendResults(results) {
