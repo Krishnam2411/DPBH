@@ -10,7 +10,10 @@
       "exclude_matches": [
         "https://www.google.com/*",
         "https://www.bing.com/*",
-        "https://www.yahoo.com/*"
+        "https://www.yahoo.com/*",
+        "https://github.com/*",
+        "https://dpbh2023.in/*",
+        "https://www.irctc.co.in/*"
       ],
       "js": ["scripts/content.js"],
       "css": ["stylesheets/content.css"],
