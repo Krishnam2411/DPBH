@@ -1,17 +1,17 @@
 .__trust_score {
   display: grid;
   place-content: center;
-  font-size: 3em;
+  font-size: 48px;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif !important;
   font-weight: 800;
-  width: 3.5em;
-  height: 3.5em;
-  padding: 0.8em;
+  width: 150px;
+  height: 150px;
+  padding: 20px;
   border-radius: 50%;
   position: fixed;
-  bottom: 22px;
-  left: 22px;
+  bottom: 20px;
+  left: 20px;
   z-index: 999999999;
   color: rgba(0, 0, 0, 0.8);
   border: 1.2px #000 solid;
