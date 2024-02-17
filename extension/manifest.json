@@ -3,16 +3,10 @@
   "name": "DPBH",
   "version": "1.0.0",
   "description": "Shows dark patterns on websites",
-  "permissions": [
-    "storage",
-    "tabs"
-  ],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
+      "matches": ["http://*/*", "https://*/*"],
       "exclude_matches": [
         "https://www.google.com/*",
         "https://www.bing.com/*",
