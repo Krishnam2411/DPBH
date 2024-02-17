@@ -13,12 +13,19 @@ import sqlalchemy.orm as _orm
 import uuid
 import os
 from random import randint
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
+# Load the model path from the environment variable
+img_folder = os.getenv("IMAGEDIR")
+url_file=os.getenv("URL_FILE")
+host=os.getenv("HOST")
+port=os.getenv("PORT")
 
 # Ignores warning
 warnings.filterwarnings('ignore')
-
-## Constants
-URL_FILE = 'data/urls.txt'
 
 app = FastAPI()
 
@@ -47,7 +54,7 @@ async def predict(data: List[str]):
 
 @app.get('/crawl')
 async def crawling():
-    crawl(URL_FILE)
+    crawl(url_file)
     return {'response': "success"}
 
 #database endpoints
@@ -101,14 +108,12 @@ async def update_post(
 
 # Screenshot endpoints
 
-IMAGEDIR = "screenshots/"
-
 @app.post("/upload/")
 async def upload_ss(file: UploadFile = File(...)):
     file.filename = f"{uuid.uuid4()}.jpg"
     contents = await file.read()
     #save the file
-    with open(f"{IMAGEDIR}{file.filename}", "wb") as f:
+    with open(f"{img_folder}{file.filename}", "wb") as f:
         f.write(contents)
     return {"filename": file.filename}
  
@@ -116,9 +121,9 @@ async def upload_ss(file: UploadFile = File(...)):
 @app.get("/show/")
 async def read_all_files():
     # get random file from the image directory
-    files = os.listdir(IMAGEDIR)
-    responses = [(f"{IMAGEDIR}{file}") for file in files]
+    files = os.listdir(img_folder)
+    responses = [(f"{img_folder}{file}") for file in files]
     return responses
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+    uvicorn.run(app, host=host, port=port)

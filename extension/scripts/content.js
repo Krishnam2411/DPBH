@@ -1,3 +1,6 @@
+const API_HOST='127.0.0.1'
+const API_PORT=8000
+
 const commonPatterns = [
   {
     pattern: "Get 63% off NordVPN + 3 months free for a friend",
@@ -106,7 +109,7 @@ async function detect() {
   const url = extractDomainFromUrl(document.URL);
 
   try {
-    const cacheResponse = await fetch(`http://127.0.0.1:8000/cache/${url}`, {
+    const cacheResponse = await fetch(`http://${API_HOST}:${API_PORT}/cache/${url}`, {
       method: "GET",
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -140,7 +143,7 @@ async function detect() {
 
 async function makePrediction(text) {
   try {
-    const predictResponse = await fetch("http://127.0.0.1:8000/predict", {
+    const predictResponse = await fetch(`http://${API_HOST}:${API_PORT}/predict`, {
       method: "POST",
       body: JSON.stringify(text),
       headers: {
@@ -159,7 +162,7 @@ async function makePrediction(text) {
 
 async function savePrediction(url, content, tscore) {
   try {
-    const saveResponse = await fetch(`http://127.0.0.1:8000/createcache/`, {
+    const saveResponse = await fetch(`http://${API_HOST}:${API_PORT}/createcache/`, {
       method: "POST",
       body: JSON.stringify({
         url: url,
