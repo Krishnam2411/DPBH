@@ -30,3 +30,7 @@ pdb.history  # Python debugger history
 
 # Pretrainded models
 core/models
+
+#database
+*.db
+database.db
