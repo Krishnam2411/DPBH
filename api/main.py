@@ -120,10 +120,14 @@ async def upload_ss(file: UploadFile = File(...)):
  
 @app.get("/show/")
 async def read_all_files():
-    # get random file from the image directory
     files = os.listdir(img_folder)
     responses = [(f"{img_folder}{file}") for file in files]
     return responses
+
+@app.get("/show/{filename}")
+async def read_file(filename: str):
+    file_path = os.path.join(img_folder, filename)
+    return FileResponse(file_path, media_type="image/jpeg")
 
 if __name__ == '__main__':
     uvicorn.run(app, host=host, port=port)
