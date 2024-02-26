@@ -99,7 +99,7 @@ async def delete_caches(db: _orm.Session = _fastapi.Depends(_services.get_db)):
     return {"message": f"Deleted all cached data"}
 
 @app.put("/cache/{url}", response_model=_schemas.Cache)
-async def update_post(
+async def update_cache(
     url:str,
     cache: _schemas.CreateCache,
     db: _orm.Session = _fastapi.Depends(_services.get_db),

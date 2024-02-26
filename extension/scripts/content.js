@@ -134,6 +134,12 @@ async function detect() {
       } else {
         console.error("Invalid content format:", parsedContent);
       }
+      console.log("Making a prediction...");
+      let [content, tscore] = await makePrediction(text);
+      console.log(content);
+      console.log(tscore);
+      console.log("Updating...");
+      await updatePrediction(url, content, tscore);
     } else {
       console.log("Cache not found, making a prediction...");
       let [content, tscore] = await makePrediction(text);
@@ -191,6 +197,31 @@ async function savePrediction(url, content, tscore) {
     console.log("Saved successfully:" + JSON.stringify(saveJson));
   } catch (error) {
     console.error("Error saving:", error);
+  }
+}
+
+async function updatePrediction(url, content, tscore) {
+  try {
+    const updateResponse = await fetch(
+      `http://${API_HOST}:${API_PORT}/cache/${url}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          url: url,
+          content: JSON.stringify(content),
+          trust_score: Number(tscore.toPrecision(2)),
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      }
+    );
+
+    const updateJson = await updateResponse.json();
+    console.log("Updated successfully:" + JSON.stringify(updateJson));
+  } catch (error) {
+    console.error("Error updating:", error);
   }
 }
 
