@@ -130,7 +130,10 @@ async function detect() {
       // console.log("Detected patterns", parsedContent);
 
       if (Array.isArray(parsedContent)) {
-        highlightPatterns([...commonPatterns, ...parsedContent]);
+        highlightPatterns(
+          [...commonPatterns, ...parsedContent],
+          cacheJson.trust_score
+        );
       } else {
         console.error("Invalid content format:", parsedContent);
       }
@@ -234,7 +237,7 @@ function scrapText() {
   return dataset;
 }
 
-function highlightPatterns(result) {
+function highlightPatterns(result, trustScore = null) {
   console.log(result, typeof result);
   let results = {
     Total: 0,
@@ -291,11 +294,16 @@ function highlightPatterns(result) {
     response,
     count,
   }));
-  let score = calcScore(results.Stats);
-  showScore(score);
   sendResults(results);
   console.log(results);
-  return score;
+  if (trustScore !== null) {
+    showScore(trustScore);
+    return trustScore;
+  } else {
+    let score = calcScore(results.Stats);
+    showScore(score);
+    return score;
+  }
 }
 
 function sendResults(results) {
