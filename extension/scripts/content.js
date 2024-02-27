@@ -1,5 +1,5 @@
-const API_HOST='127.0.0.1'
-const API_PORT=8000
+const API_HOST = "127.0.0.1";
+const API_PORT = 8000;
 
 const commonPatterns = [
   {
@@ -97,25 +97,31 @@ function remove() {
   }
 }
 
-function extractDomainFromUrl(url) {
-  const match = url.match(
-    /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n?]+)/
-  );
-  return match ? match[1] : null;
+function cleanUrl(url) {
+  // Remove protocol, www, and convert special characters to underscores
+  const cleanedUrl = url
+    .replace(/^(?:https?:\/\/)?(?:www\.)?/i, "")
+    .replace(/[^\w\s]/gi, "_");
+  // Ensure that each subdomain and webpage is separated by underscores
+  const cleanedDomain = cleanedUrl.replace(/[\/.]/g, "_");
+  return cleanedDomain;
 }
 
 async function detect() {
   const text = scrapText();
-  const url = extractDomainFromUrl(document.URL);
+  const url = cleanUrl(document.URL);
 
   try {
-    const cacheResponse = await fetch(`http://${API_HOST}:${API_PORT}/cache/${url}`, {
-      method: "GET",
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        "Access-Control-Allow-Credentials": "true",
-      },
-    });
+    const cacheResponse = await fetch(
+      `http://${API_HOST}:${API_PORT}/cache/${url}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      }
+    );
     const cacheJson = await cacheResponse.json();
     if (!cacheJson.detail) {
       const parsedContent = JSON.parse(cacheJson.content).response;
@@ -124,10 +130,19 @@ async function detect() {
       // console.log("Detected patterns", parsedContent);
 
       if (Array.isArray(parsedContent)) {
-        highlightPatterns([...commonPatterns, ...parsedContent]);
+        highlightPatterns(
+          [...commonPatterns, ...parsedContent],
+          cacheJson.trust_score
+        );
       } else {
         console.error("Invalid content format:", parsedContent);
       }
+      console.log("Making a prediction...");
+      let [content, tscore] = await makePrediction(text);
+      console.log(content);
+      console.log(tscore);
+      console.log("Updating...");
+      await updatePrediction(url, content, tscore);
     } else {
       console.log("Cache not found, making a prediction...");
       let [content, tscore] = await makePrediction(text);
@@ -143,14 +158,17 @@ async function detect() {
 
 async function makePrediction(text) {
   try {
-    const predictResponse = await fetch(`http://${API_HOST}:${API_PORT}/predict`, {
-      method: "POST",
-      body: JSON.stringify(text),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        "Access-Control-Allow-Credentials": "true",
-      },
-    });
+    const predictResponse = await fetch(
+      `http://${API_HOST}:${API_PORT}/predict`,
+      {
+        method: "POST",
+        body: JSON.stringify(text),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      }
+    );
 
     const predictJson = await predictResponse.json();
     let score = highlightPatterns([...commonPatterns, ...predictJson.response]);
@@ -162,23 +180,51 @@ async function makePrediction(text) {
 
 async function savePrediction(url, content, tscore) {
   try {
-    const saveResponse = await fetch(`http://${API_HOST}:${API_PORT}/createcache/`, {
-      method: "POST",
-      body: JSON.stringify({
-        url: url,
-        content: JSON.stringify(content),
-        trust_score: Number(tscore.toPrecision(2)),
-      }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        "Access-Control-Allow-Credentials": "true",
-      },
-    });
+    const saveResponse = await fetch(
+      `http://${API_HOST}:${API_PORT}/createcache/`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          url: url,
+          content: JSON.stringify(content),
+          trust_score: Number(tscore.toPrecision(2)),
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      }
+    );
 
     const saveJson = await saveResponse.json();
     console.log("Saved successfully:" + JSON.stringify(saveJson));
   } catch (error) {
     console.error("Error saving:", error);
+  }
+}
+
+async function updatePrediction(url, content, tscore) {
+  try {
+    const updateResponse = await fetch(
+      `http://${API_HOST}:${API_PORT}/cache/${url}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          url: url,
+          content: JSON.stringify(content),
+          trust_score: Number(tscore.toPrecision(2)),
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+          "Access-Control-Allow-Credentials": "true",
+        },
+      }
+    );
+
+    const updateJson = await updateResponse.json();
+    console.log("Updated successfully:" + JSON.stringify(updateJson));
+  } catch (error) {
+    console.error("Error updating:", error);
   }
 }
 
@@ -191,7 +237,7 @@ function scrapText() {
   return dataset;
 }
 
-function highlightPatterns(result) {
+function highlightPatterns(result, trustScore = null) {
   console.log(result, typeof result);
   let results = {
     Total: 0,
@@ -248,11 +294,16 @@ function highlightPatterns(result) {
     response,
     count,
   }));
-  let score = calcScore(results.Stats);
-  showScore(score);
   sendResults(results);
   console.log(results);
-  return score;
+  if (trustScore !== null) {
+    showScore(trustScore);
+    return trustScore;
+  } else {
+    let score = calcScore(results.Stats);
+    showScore(score);
+    return score;
+  }
 }
 
 function sendResults(results) {
