@@ -99,7 +99,7 @@ async def delete_caches(db: _orm.Session = _fastapi.Depends(_services.get_db)):
     return {"message": f"Deleted all cached data"}
 
 @app.put("/cache/{url}", response_model=_schemas.Cache)
-async def update_post(
+async def update_cache(
     url:str,
     cache: _schemas.CreateCache,
     db: _orm.Session = _fastapi.Depends(_services.get_db),
@@ -120,10 +120,14 @@ async def upload_ss(file: UploadFile = File(...)):
  
 @app.get("/show/")
 async def read_all_files():
-    # get random file from the image directory
     files = os.listdir(img_folder)
     responses = [(f"{img_folder}{file}") for file in files]
     return responses
+
+@app.get("/show/{filename}")
+async def read_file(filename: str):
+    file_path = os.path.join(img_folder, filename)
+    return FileResponse(file_path, media_type="image/jpeg")
 
 if __name__ == '__main__':
     uvicorn.run(app, host=host, port=port)
