@@ -17,6 +17,7 @@ sqlalchemy = "^2.0.27"
 pydantic = "^2.6.1"
 datetime = "^5.4"
 uuid = "^1.30"
+psycopg2 = "^2.9.9"
 
 
 [build-system]
